@@ -1,0 +1,87 @@
+# Cookie Init — TODO
+
+Cookie Init is an open-source Linux init system designed to help small Linux distribution developers build functional operating systems.
+
+## 1. Core Initialization
+- [x] Start as PID 1.
+- [x] Set up the initial environment variables.
+- [x] Set the system hostname.
+- [x] Mount essential virtual filesystems.
+- [x] Initialize the journal.
+- [ ] Check that required filesystem mount points exist.
+- [ ] Report initialization failures clearly.
+- [ ] Handle partially failed initialization safely.
+
+## 2. Autoexec System
+- [x] Read `/etc/cookie/autoexec.list`.
+- [x] Execute programs sequentially.
+- [x] Wait for each program to exit before launching the next.
+- [ ] Validate the autoexec list and report malformed entries.
+- [ ] Handle missing or non-executable programs.
+- [ ] Log each program's exit status.
+- [ ] Document the autoexec file format.
+
+## 3. Process Supervision
+- [x] Restart the autoexec sequence when the supervisor returns.
+- [ ] Reap orphaned child processes.
+- [ ] Prevent rapid restart loops.
+- [ ] Add configurable restart delays.
+- [ ] Distinguish normal exits from crashes and execution failures.
+- [ ] Define how persistent services should be supervised.
+
+## 4. Journal and Logging
+- [x] Write logs to `/var/log/cookie-init.log`.
+- [x] Print log messages to standard error.
+- [x] Support log levels.
+- [x] Add the `--clearjournal` command-line option.
+- [ ] Handle missing log directories.
+- [ ] Include reliable timestamps.
+- [ ] Handle journal write failures.
+- [ ] Add configurable journal paths.
+- [ ] Document journal APIs for developers.
+
+## 5. Signals and Shutdown
+- [ ] Implement safe SIGCHLD handling and child reaping.
+- [ ] Handle shutdown and reboot requests.
+- [ ] Shut down supervised processes in a defined order.
+- [ ] Unmount filesystems safely where appropriate.
+- [ ] Call the Linux reboot API for actual reboot and power-off operations.
+- [ ] Ensure PID 1 remains functional when a child process fails.
+
+## 6. Configuration and Portability
+- [ ] Make the hostname configurable.
+- [ ] Make startup paths configurable at build time.
+- [ ] Support different root filesystem layouts.
+- [ ] Document required kernel features.
+- [ ] Support static builds for minimal root filesystems.
+- [ ] Keep optional features independent where practical.
+
+## 7. Testing and Reliability
+- [ ] Test booting in QEMU with a minimal root filesystem.
+- [ ] Test missing and invalid autoexec files.
+- [ ] Test failed program execution.
+- [ ] Test child crashes and orphaned processes.
+- [ ] Test repeated supervisor restarts.
+- [ ] Test journal failures and unavailable storage.
+- [ ] Test shutdown and reboot behavior.
+- [ ] Add automated tests for non-PID-1 functionality.
+
+## 8. Documentation and Releases
+- [ ] Document the architecture and process model.
+- [ ] Write installation instructions.
+- [ ] Document command-line options.
+- [ ] Document configuration files.
+- [ ] Add contribution guidelines.
+- [ ] Choose and document component licensing.
+- [ ] Define a versioning and release policy.
+
+## Long-Term Ideas
+- [ ] Optional service supervision.
+- [ ] Optional dependency-aware startup.
+- [ ] Configurable service restart policies.
+- [ ] Boot-time diagnostics.
+- [ ] Distribution-specific integration hooks.
+
+---
+
+**Priority:** PID 1 reliability, child reaping, safe supervision, and shutdown handling should come before advanced service-management features.

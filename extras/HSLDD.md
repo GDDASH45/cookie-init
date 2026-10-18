@@ -12,6 +12,8 @@ If you wish, we welcome you to contribute to this project! Contributions of all 
 
 You do not need to maintain a large project or be an experienced developer to participate. Every useful contribution can help make Linux distribution development easier for someone else.
 
+HSLDD is a non-commercial project. We are 100% free and Open Source.
+
 ## Our Mission
 
 - Help small Linux distributions become more functional and reliable.

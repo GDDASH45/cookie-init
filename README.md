@@ -75,6 +75,8 @@ Test it in a disposable virtual machine before using it as the init process of a
 
 Cookie Init is under development. Features such as comprehensive orphan-process reaping, service supervision, and orderly system shutdown still require further development.
 
+See [TODO](TODO) for cookie-init devlopment progress.
+
 ## License
 
 Cookie Init is licensed under the MIT License. See [LICENSE](LICENSE) for the full license text.
