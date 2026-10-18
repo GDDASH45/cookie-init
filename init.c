@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #define AUTOEXEC_LIST "/etc/cookie/autoexec.list"
+#define JOURNAL_PATH  "/var/log/cookie-init.log"
 
 static void mount_fs(const char *source,
                      const char *target,
@@ -40,40 +41,73 @@ static void setup_filesystems(void)
              MS_NOSUID | MS_NODEV);
 }
 
-int main(void)
+static int handle_arguments(int argc, char **argv)
 {
+    if (argc == 2 &&
+        strcmp(argv[1], "--clearjournal") == 0) {
+        if (journal_clear(JOURNAL_PATH) == -1) {
+            fprintf(stderr,
+                    "cookie-init: cannot clear journal '%s': %s\n",
+                    JOURNAL_PATH, strerror(errno));
+            return 1;
+        }
+
+        printf("Cookie Init: journal cleared.\n");
+        return 0;
+    }
+
+    if (argc != 1) {
+        fprintf(stderr,
+                "Usage: init [--clearjournal]\n");
+        return 2;
+    }
+
+    return -1; /* Continue normal startup. */
+}
+
+int main(int argc, char **argv)
+{
+    int arg_result = handle_arguments(argc, argv);
+
+    if (arg_result != -1)
+        return arg_result;
+
     if (getpid() != 1) {
         fprintf(stderr, "cookie-init: must run as PID 1\n");
         return 1;
     }
 
-    if (journal_init("/var/log/cookie-init.log") == -1) {
-        journal_log(JOURNAL_WARNING,
-                    "Could not open journal file: %s",
-                    strerror(errno));
+    if (journal_init(JOURNAL_PATH) == -1) {
+        fprintf(stderr,
+                "cookie-init: could not open journal: %s\n",
+                strerror(errno));
     }
 
-    journal_log(JOURNAL_INFO, "Cookie Init started as PID %ld",
+    journal_log(JOURNAL_INFO,
+                "Cookie Init started as PID %ld",
                 (long)getpid());
 
-    /* Keep standard output and error visible on the console. */
     setenv("PATH",
            "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
            1);
+    journal_log(JOURNAL_INFO, "Set PATH");
 
-    journal_log(JOURNAL_INFO, "Set $PATH");
     setenv("HOME", "/root", 1);
-    journal_log(JOURNAL_INFO, "Set $HOME");
+    journal_log(JOURNAL_INFO, "Set HOME");
+
     setenv("SHELL", "/bin/sh", 1);
-    journal_log(JOURNAL_INFO, "Set $SHELL");
+    journal_log(JOURNAL_INFO, "Set SHELL");
+
     setenv("TERM", "linux", 0);
-    journal_log(JOURNAL_INFO, "Set $TERM");
+    journal_log(JOURNAL_INFO, "Set TERM");
 
     if (sethostname("cookie-linux", 12) == -1) {
-        fprintf(stderr, "cookie-init: sethostname failed: %s\n",
-                strerror(errno));
+        journal_log(JOURNAL_ERROR,
+                    "sethostname failed: %s",
+                    strerror(errno));
+    } else {
+        journal_log(JOURNAL_INFO, "Set hostname");
     }
-    journal_log(JOURNAL_INFO, "set hostname");
 
     /*
      * PID 1 should not accidentally terminate from a terminal
@@ -83,13 +117,11 @@ int main(void)
     signal(SIGQUIT, SIG_IGN);
     signal(SIGTERM, SIG_IGN);
 
-    fprintf(stderr, "\n");
-    fprintf(stderr, "Cookie Linux Init\n");
-    fprintf(stderr, "Starting as PID 1\n\n");
-
+    journal_log(JOURNAL_INFO, "Setting up filesystems");
     setup_filesystems();
 
-    fprintf(stderr, "cookie-init: starting autoexec supervisor\n");
+    journal_log(JOURNAL_INFO,
+                "Starting autoexec supervisor");
 
     cookie_reboot_loop(AUTOEXEC_LIST);
 

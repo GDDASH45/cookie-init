@@ -93,3 +93,21 @@ void journal_log(enum journal_level level, const char *format, ...)
         fflush(journal_file);
     }
 }
+
+int journal_clear(const char *path)
+{
+    if (path == NULL) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    FILE *file = fopen(path, "w");
+
+    if (file == NULL)
+        return -1;
+
+    if (fclose(file) == EOF)
+        return -1;
+
+    return 0;
+}

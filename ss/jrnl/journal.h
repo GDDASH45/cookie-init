@@ -15,4 +15,6 @@ void journal_close(void);
 void journal_log(enum journal_level level, const char *format, ...)
     __attribute__((format(printf, 2, 3)));
 
+int journal_clear(const char *path);
+
 #endif
