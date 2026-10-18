@@ -6,8 +6,8 @@ LDFLAGS  ?=
 TARGET   := init
 SRCDIR   := .
 ROOTFS   ?= ../rootfs
-SOURCES  := $(shell find $(SRCDIR) -type f -name '*.c')
-OBJECTS  := $(SOURCES:.c=.o)
+SOURCES := $(shell find . -type f -name '*.c')
+OBJECTS := $(SOURCES:.c=.o)
 
 .PHONY: all install clean
 

@@ -2,6 +2,7 @@
 #define _DEFAULT_SOURCE
 
 #include "reboot.h"
+#include "ss/jrnl/journal.h"
 
 #include <errno.h>
 #include <signal.h>
@@ -46,18 +47,33 @@ int main(void)
         return 1;
     }
 
+    if (journal_init("/var/log/cookie-init.log") == -1) {
+        journal_log(JOURNAL_WARNING,
+                    "Could not open journal file: %s",
+                    strerror(errno));
+    }
+
+    journal_log(JOURNAL_INFO, "Cookie Init started as PID %ld",
+                (long)getpid());
+
     /* Keep standard output and error visible on the console. */
     setenv("PATH",
            "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
            1);
+
+    journal_log(JOURNAL_INFO, "Set $PATH");
     setenv("HOME", "/root", 1);
+    journal_log(JOURNAL_INFO, "Set $HOME");
     setenv("SHELL", "/bin/sh", 1);
+    journal_log(JOURNAL_INFO, "Set $SHELL");
     setenv("TERM", "linux", 0);
+    journal_log(JOURNAL_INFO, "Set $TERM");
 
     if (sethostname("cookie-linux", 12) == -1) {
         fprintf(stderr, "cookie-init: sethostname failed: %s\n",
                 strerror(errno));
     }
+    journal_log(JOURNAL_INFO, "set hostname");
 
     /*
      * PID 1 should not accidentally terminate from a terminal
