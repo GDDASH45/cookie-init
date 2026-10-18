@@ -1,0 +1,24 @@
+
+CC       ?= gcc
+AR       ?= ar
+CFLAGS   ?= -Wall -Wextra -O2
+CPPFLAGS ?=
+ARFLAGS  := rcs
+
+LIB_NAME := libinit.a
+SRC_DIR  := libinit
+SOURCES  := $(wildcard $(SRC_DIR)/*.c)
+OBJECTS  := $(SOURCES:.c=.o)
+
+.PHONY: all clean
+
+all: $(LIB_NAME)
+
+$(LIB_NAME): $(OBJECTS)
+	$(AR) $(ARFLAGS) $@ $^
+
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+clean:
+	rm -f $(OBJECTS) $(LIB_NAME)
